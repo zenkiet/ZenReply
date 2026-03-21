@@ -2,15 +2,23 @@ package api
 
 import (
 	"context"
-	"fmt"
-	"log"
+	"log/slog"
 
 	"github.com/kietle/zenreply/config"
 	"github.com/kietle/zenreply/pkg/database"
+	"github.com/kietle/zenreply/pkg/logger"
 )
 
 func main() {
 	cfg := config.Load()
+	log := logger.New(cfg.App.LogLevel)
+
+	slog.SetDefault(log)
+
+	log.Info("starting ZenReply API",
+		slog.String("version", "1.0.0"),
+		slog.String("port", cfg.App.Port),
+	)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
