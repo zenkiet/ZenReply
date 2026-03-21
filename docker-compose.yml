@@ -45,9 +45,8 @@ services:
     environment:
       - DATABASE_URL=postgres://${DB_USER:-admin}:${DB_PASSWORD:-zenreply}@postgres:5432/${DB_NAME:-zenreply}
       - REDIS_URL=redis://:${REDIS_PASSWORD:-zenreply}@redis:6379
-      - SLACK_APP_TOKEN=${SLACK_APP_TOKEN}
-      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
-      - HMAC_SECRET=${HMAC_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRY=${JWT_EXPIRY}
 
 volumes:
   postgres_data:
