@@ -1,0 +1,16 @@
+name: SonarQube Analysis
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  jobs:
+    sonarqube:
+      runs-on: self-hosted
+      steps:
+        - uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+        - name: Scan
+          uses: sonarsource/sonarqube-scan-action@master
+          env:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+            SONAR_HOST_URL: https://sonarqube.zenkiet.dev
