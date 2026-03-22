@@ -6,10 +6,13 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/kietle/zenreply/config"
 )
 
 // NewPostgres creates a new PostgreSQL connection pool.
-func NewPostgres(ctx context.Context, connString string) (*pgxpool.Pool, error) {
+func NewPostgres(ctx context.Context, cfg *config.PostgresConfig) (*pgxpool.Pool, error) {
+	connString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.DB)
+
 	pgx, err := pgxpool.ParseConfig(connString)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse database config: %w", err)
