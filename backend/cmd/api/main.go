@@ -10,6 +10,7 @@ import (
 )
 
 func main() {
+	//--- Config ---
 	cfg := config.Load()
 	log := logger.New(cfg.App.LogLevel)
 
@@ -23,17 +24,23 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	connString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", cfg.Postgres.User, cfg.Postgres.Password, cfg.Postgres.Host, cfg.Postgres.Port, cfg.Postgres.DB)
-	db, err := database.NewPostgres(ctx, connString)
+	//--- Database ---
+	db, err := database.NewPostgres(ctx, &cfg.Postgres)
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		log.Error("Failed to connect to database", "error", err)
 	}
 	defer db.Close()
 
-	redisAddr := fmt.Sprintf("%s:%s", cfg.Redis.Host, cfg.Redis.Port)
-	rdb, err := database.NewRedis(ctx, redisAddr, cfg.Redis.Password, cfg.Redis.DB)
+	//--- Redis ---
+	rdb, err := database.NewRedis(ctx, &cfg.Redis)
 	if err != nil {
-		log.Fatalf("Failed to connect to redis: %v", err)
+		log.Error("Failed to connect to redis", "error", err)
 	}
 	defer rdb.Close()
+
+	//--- Migration ---
+	if err := database.RunMigrations(ctx, db, log); err != nil {
+		log.Error("Failed to run migrations", "error", err)
+	}
+	log.Info("migrations applied successfully")
 }

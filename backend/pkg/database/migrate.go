@@ -5,9 +5,10 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
-	"log"
 	"sort"
 	"strings"
+
+	"log/slog"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -15,7 +16,7 @@ import (
 //go:embed migrations/*.sql
 var migrationFiles embed.FS
 
-func RunMigrations(ctx context.Context, pool *pgxpool.Pool, logger *log.Logger) error {
+func RunMigrations(ctx context.Context, pool *pgxpool.Pool, log *slog.Logger) error {
 	_, err := pool.Exec(ctx, `
 		CREATE TABLE IF NOT EXISTS schema_migrarions (
 			version VARCHAR(255) NOT NULL PRIMARY KEY,
@@ -50,7 +51,7 @@ func RunMigrations(ctx context.Context, pool *pgxpool.Pool, logger *log.Logger) 
 		}
 
 		if count > 0 {
-			logger.Printf("migration version %s has already been applied, skipping", version)
+			log.Info("migration version %s has already been applied, skipping", slog.String("version", version))
 			continue
 		}
 
@@ -59,7 +60,7 @@ func RunMigrations(ctx context.Context, pool *pgxpool.Pool, logger *log.Logger) 
 			return fmt.Errorf("failed to read migration file %s: %w", entry.Name(), err)
 		}
 
-		logger.Printf("applying migration version %s", version)
+		log.Info("applying migration version %s", slog.String("version", version))
 
 		tx, err := pool.Begin(ctx)
 		if err != nil {
@@ -80,8 +81,7 @@ func RunMigrations(ctx context.Context, pool *pgxpool.Pool, logger *log.Logger) 
 			return fmt.Errorf("failed to commit transaction: %w", err)
 		}
 
-		logger.Printf("migration version %s applied successfully", version)
-
+		log.Info("migration version %s applied successfully", slog.String("version", version))
 	}
 
 	return nil
