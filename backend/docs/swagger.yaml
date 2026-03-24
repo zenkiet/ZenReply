@@ -1,0 +1,103 @@
+basePath: /api/v1
+definitions:
+  github_com_kietle_zenreply_pkg_response.APIError:
+    properties:
+      code:
+        type: string
+      details:
+        type: string
+      message:
+        type: string
+    type: object
+  github_com_kietle_zenreply_pkg_response.Meta:
+    properties:
+      page:
+        type: integer
+      per_page:
+        type: integer
+      total:
+        type: integer
+      total_page:
+        type: integer
+    type: object
+  github_com_kietle_zenreply_pkg_response.Response:
+    properties:
+      data: {}
+      error:
+        $ref: '#/definitions/github_com_kietle_zenreply_pkg_response.APIError'
+      message:
+        type: string
+      meta:
+        $ref: '#/definitions/github_com_kietle_zenreply_pkg_response.Meta'
+      success:
+        type: boolean
+    type: object
+  handler.HealthResponse:
+    properties:
+      database:
+        example: ok
+        type: string
+      redis:
+        example: ok
+        type: string
+      service:
+        example: ZenReply API
+        type: string
+      status:
+        example: ok
+        type: string
+      timestamp:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      version:
+        example: 1.0.0
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: kietgolx65234@gmail.com
+    name: ZenKiet
+    url: https://zenkiet.com
+  description: ZenReply is an intelligent Slack auto-reply system for deep work sessions.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: https://reply.zenkiet.com/terms
+  title: ZenReply API
+  version: 1.0.0
+paths:
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Check the health of the service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_kietle_zenreply_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.HealthResponse'
+              type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/github_com_kietle_zenreply_pkg_response.Response'
+      summary: Health check
+      tags:
+      - system
+schemes:
+- http
+- https
+securityDefinitions:
+  BearerAuth:
+    description: 'Enter: Bearer <your-jwt-token>'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
