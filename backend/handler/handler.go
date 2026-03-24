@@ -2,17 +2,20 @@ package handler
 
 import (
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/kietle/zenreply/config"
 	"github.com/redis/go-redis/v9"
 )
 
 type Handler struct {
-	db  *pgxpool.Pool
-	rdb *redis.Client
+	config *config.Config
+	db     *pgxpool.Pool
+	rdb    *redis.Client
 }
 
-func New(db *pgxpool.Pool, rdb *redis.Client) *Handler {
+func New(cfg *config.Config, db *pgxpool.Pool, rdb *redis.Client) *Handler {
 	return &Handler{
-		db:  db,
-		rdb: rdb,
+		config: cfg,
+		db:     db,
+		rdb:    rdb,
 	}
 }

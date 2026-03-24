@@ -14,6 +14,7 @@ type AppConfig struct {
 	BaseURL     string
 	FrontendURL string
 	LogLevel    string
+	Env         string
 }
 
 type PostgresConfig struct {
@@ -62,6 +63,7 @@ func Load() *Config {
 			BaseURL:     getEnv("APP_BASE_URL", "http://localhost:8080"),
 			FrontendURL: getEnv("APP_FRONTEND_URL", "http://localhost:4200"),
 			LogLevel:    getEnv("APP_LOG_LEVEL", "info"),
+			Env:         getEnv("APP_ENV", "development"),
 		},
 		Postgres: PostgresConfig{
 			Host:     getEnv("POSTGRES_HOST", "localhost"),
@@ -81,6 +83,10 @@ func Load() *Config {
 			Expiry: getEnvAsDuration("JWT_EXPIRY", 3600*time.Second),
 		},
 	}
+}
+
+func (c *AppConfig) IsProduction() bool {
+	return c.Env == "production"
 }
 
 func getEnv(key, fallback string) string {
