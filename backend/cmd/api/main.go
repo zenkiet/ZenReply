@@ -91,7 +91,7 @@ func main() {
 	h := handler.New(cfg, db, rdb)
 
 	// --- HTTP Server ---
-	router := route.Setup(cfg, h)
+	router := route.Setup(cfg, h, log)
 	srv := &http.Server{
 		Addr:         ":" + cfg.App.Port,
 		Handler:      router,
