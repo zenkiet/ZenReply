@@ -2,7 +2,7 @@ GOBASE=$(shell pwd)
 GOBIN=$(GOBASE)/bin
 GOPATH=$(shell go env GOPATH)
 
-.PHONY: all build clean run test lint fmt deps
+.PHONY: all build clean run test lint fmt deps docs
 
 all: build
 
@@ -15,6 +15,11 @@ deps:
 dev:
 	@echo " > Starting development server..."
 	go run ./cmd/api/main.go
+
+docs:
+	@echo " > Generating Swagger/OpenAPI docs..."
+	$(GOPATH)/bin/swag init -g cmd/api/main.go --output docs --parseDependency --parseInternal
+	@echo " > Docs generated at docs/"
 
 format:
 	@echo " > Formatting code..."
