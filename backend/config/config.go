@@ -52,9 +52,11 @@ type Config struct {
 }
 
 func Load() *Config {
-	err := godotenv.Load()
-	if err != nil {
-		log.Println(".env not found")
+	if os.Getenv("ENV") == "development" {
+		err := godotenv.Load()
+		if err != nil {
+			log.Println(".env not found")
+		}
 	}
 
 	return &Config{
