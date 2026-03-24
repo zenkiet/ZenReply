@@ -11,9 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
     slack_name    VARCHAR(255) NOT NULL DEFAULT '',
     email         VARCHAR(255) NOT NULL DEFAULT '',
     avatar_url    TEXT         NOT NULL DEFAULT '',
-    -- access_token is stored encrypted (AES-256-GCM)
     access_token  TEXT         NOT NULL DEFAULT '',
-    bot_token     TEXT         NOT NULL DEFAULT '',
     token_scope   TEXT         NOT NULL DEFAULT '',
     is_active     BOOLEAN      NOT NULL DEFAULT TRUE,
     created_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
@@ -27,19 +25,18 @@ CREATE INDEX IF NOT EXISTS idx_users_slack_team_id ON users(slack_team_id);
 -- TABLE: user_settings
 -- ============================================================
 CREATE TABLE IF NOT EXISTS user_settings (
-    id                   UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id              UUID         NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
-    default_message      TEXT         NOT NULL DEFAULT 'I am currently in a deep work session and will reply as soon as I am available.',
-    default_reason       VARCHAR(255) NOT NULL DEFAULT 'Deep Work',
-    cooldown_minutes     INT          NOT NULL DEFAULT 3,
-    -- whitelist and blacklist stored as JSON arrays of Slack user IDs
-    whitelist            JSONB        NOT NULL DEFAULT '[]',
-    blacklist            JSONB        NOT NULL DEFAULT '[]',
-    reply_in_thread      BOOLEAN      NOT NULL DEFAULT TRUE,
-    notify_on_resume     BOOLEAN      NOT NULL DEFAULT FALSE,
-    auto_reply_enabled   BOOLEAN      NOT NULL DEFAULT TRUE,
-    created_at           TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-    updated_at           TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+    id                 UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id            UUID         NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+    default_message    TEXT         NOT NULL DEFAULT 'I am currently in a deep work session and will reply as soon as I am available.',
+    default_reason     VARCHAR(255) NOT NULL DEFAULT 'Deep Work',
+    cooldown_minutes   INT          NOT NULL DEFAULT 3,
+    whitelist          JSONB        NOT NULL DEFAULT '[]',
+    blacklist          JSONB        NOT NULL DEFAULT '[]',
+    reply_in_thread    BOOLEAN      NOT NULL DEFAULT TRUE,
+    notify_on_resume   BOOLEAN      NOT NULL DEFAULT FALSE,
+    auto_reply_enabled BOOLEAN      NOT NULL DEFAULT TRUE,
+    created_at         TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    updated_at         TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_user_settings_user_id ON user_settings(user_id);

@@ -32,12 +32,19 @@ func Setup(cfg *config.Config, h *handler.Handler, logger *slog.Logger) *gin.Eng
 		c.Header("Content-Type", "text/html; charset=utf-8")
 		c.String(http.StatusOK, scalarHTML(cfg.App.BaseURL))
 	})
-
-	// --- Routes ---
-	r.GET("/health", h.HealthCheck)
-	r.GET("/ping", func(c *gin.Context) {
-		response.OK(c, "ping", nil)
+	r.GET("/openapi.json", func(c *gin.Context) {
+		c.File("./docs/swagger.json")
 	})
+
+	// --- Systems ---
+	r.GET("/health", h.HealthCheck)
+
+	// --- API Routes ---
+	v1 := r.Group("/api/v1")
+	auth := v1.Group("/slack")
+	{
+		auth.GET("/auth", h.SlackAuthURL)
+	}
 
 	//--- Not Found Handler ---
 	r.NoRoute(func(c *gin.Context) {

@@ -1,12 +1,10 @@
 package config
 
 import (
-	"log"
+	"fmt"
 	"os"
 	"strconv"
 	"time"
-
-	"github.com/joho/godotenv"
 )
 
 type AppConfig struct {
@@ -44,21 +42,22 @@ type RedisConfig struct {
 	URL      string
 }
 
+type SlackConfig struct {
+	ClientID      string
+	ClientSecret  string
+	SigningSecret string
+	RedirectURL   string
+}
+
 type Config struct {
 	App      AppConfig
 	Postgres PostgresConfig
 	Redis    RedisConfig
 	JWT      JWTConfig
+	Slack    SlackConfig
 }
 
 func Load() *Config {
-	if os.Getenv("ENV") == "development" {
-		err := godotenv.Load()
-		if err != nil {
-			log.Println(".env not found")
-		}
-	}
-
 	return &Config{
 		App: AppConfig{
 			Port:        getEnv("APP_PORT", "8080"),
@@ -72,7 +71,7 @@ func Load() *Config {
 			Port:     getEnv("POSTGRES_PORT", "5432"),
 			User:     getEnv("POSTGRES_USER", "postgres"),
 			Password: getEnv("POSTGRES_PASSWORD", "password"),
-			DB:       getEnv("POSTGRES_DB", "attendance_db"),
+			DB:       getEnv("POSTGRES_DB", "zenreply"),
 		},
 		Redis: RedisConfig{
 			Host:     getEnv("REDIS_HOST", "localhost"),
@@ -83,6 +82,12 @@ func Load() *Config {
 		JWT: JWTConfig{
 			Secret: getEnv("JWT_SECRET", "secret"),
 			Expiry: getEnvAsDuration("JWT_EXPIRY", 3600*time.Second),
+		},
+		Slack: SlackConfig{
+			ClientID:      getEnv("SLACK_CLIENT_ID", ""),
+			ClientSecret:  getEnv("SLACK_CLIENT_SECRET", ""),
+			SigningSecret: getEnv("SLACK_SIGNING_SECRET", ""),
+			RedirectURL:   fmt.Sprintf("%s/api/v1/slack/callback", getEnv("APP_BASE_URL", "https://localhost:8080")),
 		},
 	}
 }

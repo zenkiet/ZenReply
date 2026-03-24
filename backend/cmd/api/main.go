@@ -21,18 +21,8 @@
 //
 //	@tag.name system
 //	@tag.description System health and diagnostics
-//	@tag.name auth
-//	@tag.description Slack OAuth 2.0 authentication flow
-//	@tag.name users
-//	@tag.description User profile management
-//	@tag.name deep-work
-//	@tag.description Deep work session management
-//	@tag.name settings
-//	@tag.description User auto-reply configuration
-//	@tag.name logs
-//	@tag.description Auto-reply message history
 //	@tag.name slack
-//	@tag.description Slack Events API webhook
+//	@tag.description Slack authentication flow
 
 package main
 
@@ -49,7 +39,9 @@ import (
 	"github.com/kietle/zenreply/handler"
 	"github.com/kietle/zenreply/pkg/database"
 	"github.com/kietle/zenreply/pkg/logger"
+	"github.com/kietle/zenreply/pkg/slack"
 	"github.com/kietle/zenreply/route"
+	"github.com/kietle/zenreply/service"
 )
 
 func main() {
@@ -87,8 +79,12 @@ func main() {
 	}
 	log.Info("migrations applied successfully")
 
+	// --- Service ---
+	slackOAuth := slack.NewSlackOAuth(cfg)
+	authSvc := service.NewOAuthService(cfg, rdb, slackOAuth)
+
 	// --- Handler ---
-	h := handler.New(cfg, db, rdb)
+	h := handler.New(cfg, db, rdb, authSvc)
 
 	// --- HTTP Server ---
 	router := route.Setup(cfg, h, log)
