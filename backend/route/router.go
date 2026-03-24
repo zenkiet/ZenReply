@@ -1,17 +1,19 @@
 package route
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/kietle/zenreply/config"
 	"github.com/kietle/zenreply/handler"
+	"github.com/kietle/zenreply/pkg/middleware"
 	"github.com/kietle/zenreply/pkg/response"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func Setup(cfg *config.Config, h *handler.Handler) *gin.Engine {
+func Setup(cfg *config.Config, h *handler.Handler, logger *slog.Logger) *gin.Engine {
 	if cfg.App.IsProduction() {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -19,8 +21,10 @@ func Setup(cfg *config.Config, h *handler.Handler) *gin.Engine {
 	r := gin.New()
 
 	// --- Middleware ---
-	// r.Use(gin.Logger())
-	// r.Use(gin.Recovery())
+	r.Use(middleware.Logger(logger))
+	r.Use(middleware.RequestID())
+	r.Use(middleware.Recovery(logger))
+	r.Use(middleware.CORS([]string{cfg.App.BaseURL, cfg.App.FrontendURL}))
 
 	// --- Swagger UI ---
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
