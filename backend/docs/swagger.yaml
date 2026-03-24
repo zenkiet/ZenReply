@@ -53,6 +53,15 @@ definitions:
         example: 1.0.0
         type: string
     type: object
+  handler.SlackAuthURLResponse:
+    properties:
+      state:
+        example: "123456"
+        type: string
+      url:
+        example: https://slack.com/oauth/v2/authorize?client_id=1234567890&scope=chat:write,im:write,channels:read,groups:read,users:read,reactions:read&redirect_uri=https://localhost:8080/api/v1/slack/auth/callback
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -91,6 +100,30 @@ paths:
       summary: Health check
       tags:
       - system
+  /slack/auth:
+    get:
+      consumes:
+      - application/json
+      description: Generate a Slack OAuth URL for the user login
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_kietle_zenreply_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.SlackAuthURLResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_kietle_zenreply_pkg_response.Response'
+      summary: Generate Slack OAuth URL
+      tags:
+      - slack
 schemes:
 - http
 - https
