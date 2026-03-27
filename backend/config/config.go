@@ -69,14 +69,14 @@ func Load() *Config {
 		Postgres: PostgresConfig{
 			Host:     getEnv("POSTGRES_HOST", "localhost"),
 			Port:     getEnv("POSTGRES_PORT", "5432"),
-			User:     getEnv("POSTGRES_USER", "postgres"),
-			Password: getEnv("POSTGRES_PASSWORD", "password"),
+			User:     getEnv("POSTGRES_USER", "admin"),
+			Password: getEnv("POSTGRES_PASSWORD", "zenreply"),
 			DB:       getEnv("POSTGRES_DB", "zenreply"),
 		},
 		Redis: RedisConfig{
 			Host:     getEnv("REDIS_HOST", "localhost"),
 			Port:     getEnv("REDIS_PORT", "6379"),
-			Password: getEnv("REDIS_PASSWORD", ""),
+			Password: getEnv("REDIS_PASSWORD", "zenreply"),
 			DB:       getEnvAsInt("REDIS_DB", 0),
 		},
 		JWT: JWTConfig{

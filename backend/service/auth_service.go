@@ -2,11 +2,13 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/kietle/zenreply/config"
+	"github.com/kietle/zenreply/model"
 	"github.com/kietle/zenreply/pkg/slack"
 	"github.com/redis/go-redis/v9"
 )
@@ -41,4 +43,36 @@ func (s *AuthService) BuildAuthURL(ctx context.Context) (string, string, error) 
 	// Build the Slack OAuth URL
 	url := s.slackOAuth.BuildAuthURL(state)
 	return url, state, nil
+}
+
+func (s *AuthService) HandleCallback(ctx context.Context, code, state string) (*model.User, string, error) {
+	result, err := s.rdb.GetDel(ctx, fmt.Sprintf("oauth:state:%s", state)).Result()
+	if errors.Is(err, redis.Nil) || result == "" {
+		return nil, "", fmt.Errorf("invalid or expired state")
+	}
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to get OAuth state: %w", err)
+	}
+
+	slackAuthResult, err := s.slackOAuth.ExchangeCodeForToken(ctx, code)
+	if err != nil {
+		return nil, "", fmt.Errorf("authService.HandleCallback: %w", err)
+	}
+
+	user := &model.User{
+		SlackUserID: slackAuthResult.SlackUserID,
+		SlackTeamID: slackAuthResult.SlackTeamID,
+		SlackName:   slackAuthResult.SlackName,
+		Email:       slackAuthResult.Email,
+		AvatarURL:   slackAuthResult.AvatarURL,
+		AccessToken: slackAuthResult.AccessToken,
+		TokenScope:  slackAuthResult.TokenScope,
+		IsActive:    true,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	// TODO: Create settings & JWT
+
+	return user, slackAuthResult.AccessToken, nil
 }

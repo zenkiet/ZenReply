@@ -105,6 +105,41 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/slack/callback": {
+            "get": {
+                "description": "Handle the Slack OAuth callback and redirect to the frontend",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "slack"
+                ],
+                "summary": "Handle Slack OAuth callback",
+                "responses": {
+                    "302": {
+                        "description": "Redirect to the frontend",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_kietle_zenreply_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_kietle_zenreply_pkg_response.Response"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
