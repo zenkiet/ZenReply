@@ -44,6 +44,7 @@ func Setup(cfg *config.Config, h *handler.Handler, logger *slog.Logger) *gin.Eng
 	auth := v1.Group("/slack")
 	{
 		auth.GET("/auth", h.SlackAuthURL)
+		auth.GET("/callback", h.SlackAuthCallback)
 	}
 
 	//--- Not Found Handler ---
